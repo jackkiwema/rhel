@@ -1,5 +1,3 @@
 ---
 RedHat Files
 ---
-
-# RedHat Files
