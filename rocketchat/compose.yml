@@ -1,0 +1,30 @@
+services:
+rocketchat:
+  image: ${IMAGE}:${RELEASE}
+  restart: unless-stopped
+  volumes:
+      - ./uploads:/app/uploads
+  environment:
+    PORT: ${PORT}
+    ROOT_URL: ${ROOT_URL}
+    MONGO_URL: mongodb://mongodb:27017/rocketchat?replicaSet=rs0
+    MAIL_URL: ${MAIL_URL}
+  depends_on:
+    - mongodb
+  ports:
+    - "${BIND_IP}:${HOST_PORT}:${PORT}"
+
+mongodb:
+  image: ${MONGODB_IMAGE}:${MONGODB_VERSION}
+  restart: unless-stopped
+  volumes:
+    - ${MONGODB_HOST_PATH}:${MONGODB_BITNAMI}
+  environment:
+    MONGODB_REPLICA_SET_MODE: primary
+    MONGODB_REPLICA_SET_NAME: ${MONGODB_REPLICA_SET_NAME}
+    MONGODB_PORT_NUMBER: ${MONGODB_PORT_NUMBER}
+    MONGODB_INITIAL_PRIMARY_HOST: ${MONGODB_INITIAL_PRIMARY_HOST}
+    MONGODB_INITIAL_PRIMARY_PORT_NUMBER: ${MONGODB_INITIAL_PRIMARY_PORT_NUMBER}
+    MONGODB_ADVERTISED_HOSTNAME: ${MONGODB_ADVERTISED_HOSTNAME}
+    MONGODB_ENABLE_JOURNAL: ${MONGODB_ENABLE_JOURNAL}
+    ALLOW_EMPTY_PASSWORD: ${ALLOW_EMPTY_PASSWORD}

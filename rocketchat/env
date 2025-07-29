@@ -1,0 +1,33 @@
+IMAGE=rocketchat/rocket.chat
+RELEASE=7.8.2
+# IP to bind the process to
+BIND_IP=0.0.0.0
+# URL used to access your Rocket.Chat instance
+ROOT_URL=http://localhost
+# Port Rocket.Chat runs on (in-container)
+PORT=3000
+# Port on the host to bind to
+HOST_PORT= 80
+### MongoDB configuration
+# MongoDB version/image tag
+MONGODB_VERSION=6.0
+# MongoDB local host path
+# chown -R 1001:1001 /data/mongodb
+MONGODB_IMAGE=docker.io/bitnami/mongodb 
+MONGODB_BITNAMI=/bitnami/mongodb
+MONGODB_HOST_PATH="./data/db"
+MONGODB_PORT_NUMBER=27017
+MONGODB_REPLICA_SET_NAME=rs0
+MONGODB_INITIAL_PRIMARY_HOST=mongodb
+MONGODB_INITIAL_PRIMARY_PORT_NUMBER=27017
+MONGODB_ADVERTISED_HOSTNAME=mongodb
+MONGODB_ENABLE_JOURNAL=true
+ALLOW_EMPTY_PASSWORD=yes
+MAIL_URL=smtp://smtp.email
+### Traefik config (if enabled)
+# Traefik version/image tag
+#TRAEFIK_RELEASE=
+# Domain for https (change ROOT_URL & BIND_IP accordingly)
+#DOMAIN=
+# Email for certificate notifications
+#LETSENCRYPT_EMAIL=
