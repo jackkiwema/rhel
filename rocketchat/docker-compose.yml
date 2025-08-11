@@ -1,0 +1,76 @@
+version: "3.8"
+
+services:
+  traefik:
+    image: traefik:${TRAEFIK_RELEASE:-v2.9} # Use variable from .env
+    container_name: traefik
+    restart: always
+    command:
+      - "--api.dashboard=true" # Enable dashboard for debugging
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.web.http.redirections.entrypoint.to=websecure" # Correct redirection
+      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+      - "--entrypoints.websecure.address=:443" # Use 'websecure' for clarity
+      - "--providers.file.filename=/etc/traefik/dynamic/cert.yml" # Point to the dynamic config file
+      - "--providers.file.watch=true" # Watch for changes
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      # Mount the cert.yml dynamic configuration file
+      - ./cert.yml:/etc/traefik/dynamic/cert.yml:ro
+      # Mount your actual SSL certificate files (read-only)
+      - ./certs:/etc/ssl/faulu:ro
+      # Mount the docker socket
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - proxy # Connect to the shared network
+
+  rocketchat:
+    image: ${IMAGE}:${RELEASE}
+    restart: always
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.rocketchat.rule=Host(`${DOMAIN}`)"
+      # Point the router to the secure entrypoint
+      - "traefik.http.routers.rocketchat.entrypoints=websecure"
+      # Enable TLS for this router
+      - "traefik.http.routers.rocketchat.tls=true"
+      # Make Rocket.Chat listen on its internal port 3000
+      - "traefik.http.services.rocketchat.loadbalancer.server.port=3000"
+    volumes:
+      - ./uploads:/app/uploads
+    environment:
+      PORT: ${PORT}
+      ROOT_URL: ${ROOT_URL}
+      MONGO_URL: mongodb://mongodb:27017/rocketchat?replicaSet=rs0
+      MAIL_URL: ${MAIL_URL}
+    depends_on:
+      - mongodb
+    networks:
+      - proxy # Connect to the shared network
+    # NO ports exposure needed here. Traefik handles it.
+
+  mongodb:
+    image: ${MONGODB_IMAGE}:${MONGODB_VERSION}
+    restart: always
+    volumes:
+      - ${MONGODB_HOST_PATH}:${MONGODB_BITNAMI}
+    environment:
+      MONGODB_REPLICA_SET_MODE: primary
+      MONGODB_REPLICA_SET_NAME: ${MONGODB_REPLICA_SET_NAME}
+      MONGODB_PORT_NUMBER: ${MONGODB_PORT_NUMBER}
+      MONGODB_INITIAL_PRIMARY_HOST: ${MONGODB_INITIAL_PRIMARY_HOST}
+      MONGODB_INITIAL_PRIMARY_PORT_NUMBER: ${MONGODB_INITIAL_PRIMARY_PORT_NUMBER}
+      MONGODB_ADVERTISED_HOSTNAME: ${MONGODB_ADVERTISED_HOSTNAME}
+      MONGODB_ENABLE_JOURNAL: ${MONGODB_ENABLE_JOURNAL}
+      ALLOW_EMPTY_PASSWORD: ${ALLOW_EMPTY_PASSWORD}
+    networks:
+      - proxy # Connect to the shared network
+
+# Define the shared network
+networks:
+  proxy:
+    name: proxy
