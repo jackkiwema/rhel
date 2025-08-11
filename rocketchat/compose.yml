@@ -1,5 +1,5 @@
 services:
-rocketchat:
+ rocketchat:
   image: ${IMAGE}:${RELEASE}
   restart: always
   labels:
@@ -21,7 +21,7 @@ rocketchat:
     - "${BIND_IP}:${HOST_PORT}:${PORT}"
 
 
-mongodb:
+ mongodb:
   image: ${MONGODB_IMAGE}:${MONGODB_VERSION}
   restart: always
   volumes:

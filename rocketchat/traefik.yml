@@ -1,5 +1,5 @@
 services:
-traefik:
+ traefik:
   image: docker.io/traefik:${TRAEFIK_RELEASE}
   restart: always
   command:
@@ -16,5 +16,6 @@ traefik:
     - 80:80
     - 443:443
   volumes:
-    - ./cert.yml:/etc/traefik/dynamic/cert.yml:rw
+    - ./cert.yml:/etc/traefik/dynamic/cert.yml:ro
+    - ./certs:/etc/ssl/faulu:ro
     - /var/run/docker.sock:/var/run/docker.sock:ro
