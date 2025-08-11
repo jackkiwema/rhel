@@ -1,9 +1,15 @@
 services:
- rocketchat:
+rocketchat:
   image: ${IMAGE}:${RELEASE}
-  restart: unless-stopped
+  restart: always
+  labels:
+    traefik.enable: "true"
+    traefik.http.routers.rocketchat.rule: Host(`${DOMAIN:-}`)
+    traefik.http.routers.rocketchat.tls: "true"
+    traefik.http.routers.rocketchat.entrypoints: https
+    traefik.http.routers.rocketchat.tls.certresolver: digicert
   volumes:
-      - ./uploads:/app/uploads
+    - ./uploads:/app/uploads
   environment:
     PORT: ${PORT}
     ROOT_URL: ${ROOT_URL}
@@ -14,9 +20,10 @@ services:
   ports:
     - "${BIND_IP}:${HOST_PORT}:${PORT}"
 
- mongodb:
+
+mongodb:
   image: ${MONGODB_IMAGE}:${MONGODB_VERSION}
-  restart: unless-stopped
+  restart: always
   volumes:
     - ${MONGODB_HOST_PATH}:${MONGODB_BITNAMI}
   environment:

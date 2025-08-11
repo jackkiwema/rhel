@@ -1,0 +1,4 @@
+tls:
+certificates:
+  - certFile: /etc/ssl/faulu/faulu.crt
+    keyFile: /etc/ssl/faulu/private.key

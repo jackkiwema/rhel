@@ -1,13 +1,13 @@
 IMAGE=rocketchat/rocket.chat
 RELEASE=7.8.2
 # IP to bind the process to
-BIND_IP=0.0.0.0
+BIND_IP=127.0.0.1
 # URL used to access your Rocket.Chat instance
-ROOT_URL=http://localhost
+ROOT_URL=https://omni-test-app.faulukenya.com
 # Port Rocket.Chat runs on (in-container)
 PORT=3000
 # Port on the host to bind to
-HOST_PORT= 80
+HOST_PORT= 3000
 ### MongoDB configuration
 # MongoDB version/image tag
 MONGODB_VERSION=6.0
@@ -26,8 +26,8 @@ ALLOW_EMPTY_PASSWORD=yes
 MAIL_URL=smtp://smtp.email
 ### Traefik config (if enabled)
 # Traefik version/image tag
-#TRAEFIK_RELEASE=
+TRAEFIK_RELEASE=v2.9.8
 # Domain for https (change ROOT_URL & BIND_IP accordingly)
-#DOMAIN=
+DOMAIN=omni-test-app.faulukenya.com
 # Email for certificate notifications
-#LETSENCRYPT_EMAIL=
+LETSENCRYPT_EMAIL=jack@dynamicsystems.co.ke

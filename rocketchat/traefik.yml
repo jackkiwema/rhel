@@ -1,0 +1,20 @@
+services:
+traefik:
+  image: docker.io/traefik:${TRAEFIK_RELEASE}
+  restart: always
+  command:
+   - --api.insecure=false
+   - --providers.docker=true
+   - --providers.file.directory=/etc/traefik/dynamic
+   - --providers.docker.exposedbydefault=false
+   - --entrypoints.web.address=:80
+   - --entrypoints.web.http.redirections.entryPoint.to=https
+   - --entrypoints.web.http.redirections.entryPoint.scheme=https
+   - --entrypoints.https.address=:443
+     
+  ports:
+    - 80:80
+    - 443:443
+  volumes:
+    - ./cert.yml:/etc/traefik/dynamic/cert.yml:rw
+    - /var/run/docker.sock:/var/run/docker.sock:ro
