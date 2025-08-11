@@ -15,6 +15,7 @@ services:
       - "--entrypoints.websecure.address=:443" # Use 'websecure' for clarity
       - "--providers.file.filename=/etc/traefik/dynamic/cert.yml" # Point to the dynamic config file
       - "--providers.file.watch=true" # Watch for changes
+      - "--log.level=DEBUG"
     ports:
       - "80:80"
       - "443:443"
@@ -73,4 +74,4 @@ services:
 # Define the shared network
 networks:
   proxy:
-    name: proxy
+    external: true
