@@ -1,0 +1,59 @@
+services:
+  traefik:
+    image: traefik:${TRAEFIK_RELEASE:-v2.9.8}
+    container_name: traefik
+    restart: always
+    command:
+      - "--configFile=/etc/traefik/traefik.yml"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik/traefik.yml:/etc/traefik/traefik.yml:ro
+      - ./traefik/dynamic:/etc/traefik/dynamic:ro
+      - ./traefik/certs:/etc/ssl/faulu:ro
+    networks:
+      - proxy
+
+  rocketchat:
+    image: ${IMAGE}:${RELEASE}
+    restart: always
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.rocketchat.rule=Host(`${DOMAIN}`)"
+      - "traefik.http.routers.rocketchat.entrypoints=websecure"
+      - "traefik.http.routers.rocketchat.tls=true"
+      - "traefik.http.services.rocketchat.loadbalancer.server.port=3000"
+    volumes:
+      - ./uploads:/app/uploads
+    environment:
+      PORT: ${PORT}
+      ROOT_URL: ${ROOT_URL}
+      MONGO_URL: mongodb://mongodb:27017/rocketchat?replicaSet=rs0
+      MAIL_URL: ${MAIL_URL}
+    depends_on:
+      - mongodb
+    networks:
+      - proxy
+
+  mongodb:
+    image: ${MONGODB_IMAGE}:${MONGODB_VERSION}
+    restart: always
+    volumes:
+      - ${MONGODB_HOST_PATH}:${MONGODB_BITNAMI}
+    environment:
+      MONGODB_REPLICA_SET_MODE: primary
+      MONGODB_REPLICA_SET_NAME: ${MONGODB_REPLICA_SET_NAME}
+      MONGODB_PORT_NUMBER: ${MONGODB_PORT_NUMBER}
+      MONGODB_INITIAL_PRIMARY_HOST: ${MONGODB_INITIAL_PRIMARY_HOST}
+      MONGODB_INITIAL_PRIMARY_PORT_NUMBER: ${MONGODB_INITIAL_PRIMARY_PORT_NUMBER}
+      MONGODB_ADVERTISED_HOSTNAME: ${MONGODB_ADVERTISED_HOSTNAME}
+      MONGODB_ENABLE_JOURNAL: ${MONGODB_ENABLE_JOURNAL}
+      ALLOW_EMPTY_PASSWORD: ${ALLOW_EMPTY_PASSWORD}
+    networks:
+      - proxy
+
+networks:
+  proxy:
+    external: true
